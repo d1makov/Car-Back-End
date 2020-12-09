@@ -8,6 +8,7 @@ namespace Car.Tests
         [Fact]
         public void Test1()
         {
+            // simplest test
             int actual = 1;
             int expected = 1;
 
