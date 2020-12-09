@@ -4,6 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Car.BLL.Dto.Email;
+using Car.BLL.Services.Implementation;
+using Car.BLL.Services.Interfaces;
 using CarBackEnd.ServiceExtension;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -36,6 +39,15 @@ namespace CarBackEnd
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            var emailConfig = Configuration
+                .GetSection("EmailConfiguration")
+                .Get<EmailConfiguration>();
+            services.AddSingleton(emailConfig);
+            services.AddSingleton<ISmptClient, SmtpClientService>();
+            services.AddScoped<IEmailSenderService, EmailSenderService>();
+            
+
+
             services.AddDbContext(Configuration, Environment);
             services.AddControllers();
             services.AddLogging();
@@ -47,6 +59,9 @@ namespace CarBackEnd
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
+            services.AddCors(options => options.AddDefaultPolicy(
+                builder => builder.AllowAnyOrigin()
+                ));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -63,6 +78,8 @@ namespace CarBackEnd
             }
 
             app.UseRouting();
+
+            app.UseCors();
 
             app.UseEndpoints(endpoints =>
             {
