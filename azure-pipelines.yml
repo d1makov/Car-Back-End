@@ -23,6 +23,17 @@ steps:
     projects: '**/*.csproj'
     
 
+- task: SonarCloudPrepare@1
+  inputs:
+    SonarCloud: 'SONAR_TOKEN'
+    organization: 'car-back-end-testing'
+    scannerMode: 'CLI'
+    configMode: 'manual'
+    cliProjectKey: 'car-back-end-testing-key-super-secret'
+    cliProjectName: 'test-sonar'
+    cliSources: '.'
+
+
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
@@ -37,7 +48,8 @@ steps:
   inputs:
     command: test
     projects: '**/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+    custom: test
+    arguments: --configuration $(BuildConfiguration) --collect:"CodeCoverage"
 
 - task: DotNetCoreCLI@2
   inputs:
@@ -46,13 +58,11 @@ steps:
     arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: True
 
-- task: Bash@3
-  inputs:
-    targetType: 'inline'
-    script: 'ls "D:\a\1\a"'
-    
-- task: AzureWebApp@1
-  inputs:
-    azureSubscription: 'Visual Studio Enterprise Subscription'
-    appName: 'Car-app'
-    package: D:\a\1\a\*.zip 
+- task: SonarCloudAnalyze@1
+  displayName: Run Code Analysis
+
+- task: SonarCloudPublish@1
+  displayName: Publish Quality Gate Result
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: drop'
