@@ -32,6 +32,7 @@ steps:
     cliProjectKey: 'car-back-end-testing-key-super-secret'
     cliProjectName: 'test-sonar'
     cliSources: '.'
+    extraProperties: sonar.exclusions=**/Migrations/*.cs
 
 
 - task: DotNetCoreCLI@2
@@ -49,7 +50,7 @@ steps:
     command: test
     projects: '**/*Tests/*.csproj'
     custom: test
-    arguments: --configuration $(BuildConfiguration) --collect:"CodeCoverage"
+    arguments: --configuration $(BuildConfiguration) --collect:"Code Coverage"
 
 - task: DotNetCoreCLI@2
   inputs:
